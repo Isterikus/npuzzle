@@ -2,6 +2,7 @@ import numpy
 import sys
 import copy
 import time
+from subprocess import call
 
 # DEFINE GLOBAL VARS | READING FIELD
 
@@ -57,7 +58,10 @@ class State(object):
 		return self.g + self.h
 
 	def setH(self):
-		self.h = self.getManhattan() + self.getLinearConflict()
+		if not self.checkPattern():
+			self.h = self.getPatternDatabase()
+		else:
+			self.h = self.getManhattan() + self.getLinearConflict()
 
 	def setG(self, g):
 		self.g = g
@@ -67,6 +71,42 @@ class State(object):
 
 	def setParent(self, parent):
 		self.parent = parent
+
+	def checkPattern(self):
+		for i in range(n):
+			if self.field[i] != i + 1:
+				return False
+			if self.field[i * n] != i * n + 1:
+				return False
+		return True
+
+	def getPatternDatabase(self):
+		ret = 0
+		for i in range(n):
+			for j in range(n):
+				if (self.field[i * n + j] in [i+1 for i in top_range]) or (self.field[i * n + j] in [i+1 for i in left_range]):
+					pl_i = (self.field[i * n + j]) // n
+					pl_j = (self.field[i * n + j]) % n - 1
+					if pl_i == 1 and (self.field[i * n + j]) % n == 0:
+						pl_i = 0
+					if pl_j == -1:
+						pl_j = n-1
+					# print('---------------------------------- ', self.field[i * n + j])
+					# print('i = ', i, ' j = ', j)
+					# print('plI = ', pl_i, ' plJ = ', pl_j)
+					# print('pl = ', abs(i - pl_i) + abs(j - pl_j))
+					ret += abs(i - pl_i) + abs(j - pl_j)
+		# for i in range(n):
+		# 	for j in range(i, n):
+		# 			pass
+		# 		if self.field[i] > self.field[j]:
+		# 			ret += 2
+		# 		if self.field[i * n] > self.field[j * n]:
+		# 			ret += 2
+		# print(self.field)
+		# print(ret)
+		# exit()
+		return ret
 
 	def getManhattan(self):
 		ret = 0
@@ -205,7 +245,7 @@ def search(node, g, bound):
 	if f > bound:
 		return f
 	if node.field == goal:
-		print_way(node)
+		# print_way(node)
 		return 'FOUND'
 	mn = 1000000
 	for succ in node.findNeighbors():
@@ -229,12 +269,18 @@ def ida_star():
 		t = search(initialState, 0, bound)
 		# print("--- %s seconds ---" % (time.time() - start_time))
 		if t == 'FOUND':
-			print('TIME: %s' % (time.time() - start_time))
-			exit()
-		# if t == 1000000:
+			print('PYTHON TIME: %s' % (time.time() - start_time))
+			break
+			# if t == 1000000:
 			# print(t)
 			# exit()
 		bound += 2
+	to_c = ""
+	for el in initialState.field:
+		to_c += "," + str(el)
+	to_c = to_c[1:]
+	print(to_c)
+	call(["./a.out", str(n), to_c])
 # solveIDAStar()
 ida_star()
 

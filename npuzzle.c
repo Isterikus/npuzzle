@@ -276,7 +276,7 @@ void	solve(int *initial_field)
 	initial->parent = NULL;
 	set_range();
 	bound = getH(initial->field);
-	while (bound <= 90)
+	while (1)
 	{
 		t = search(initial, 0, bound);
 		if (t)
@@ -286,7 +286,7 @@ void	solve(int *initial_field)
 	gettimeofday(&stop, NULL);
 	double secs;
 	secs = (double)(stop.tv_usec - start.tv_usec) / 1000000 + (double)(stop.tv_sec - start.tv_sec);
-	printf("TIME %f\n",secs);
+	printf("C TIME %f\n",secs);
 	free(initial);
 }
 
@@ -298,6 +298,7 @@ int		main(int argc, char const *argv[])
 
 	if (argc != 3)
 		return 0;
+	printf("START C\n");
 	n = ft_atoi(argv[1]);
 	size = n * n;
 	initial_field = (int *)malloc(sizeof(int) * size);

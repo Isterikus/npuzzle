@@ -10,7 +10,7 @@ from subprocess import call
 n = 0
 field_size = 0
 field = []
-file = "npuzzle-3-5.txt"
+file = "npuzzle-4-3.txt"
 
 with open("data/" + file) as f:
 	i = 0
@@ -140,12 +140,16 @@ class State(object):
 		ret = 0
 		for i in range(n):
 			for j in range(n):
-				for l in range(i, n):
-					if self.field[i * n + j] > self.field[l * n + j]:
-						ret += 2
-				for k in range(j, n):
-					if self.field[i * n + j] > self.field[i * n + k]:
-						ret += 2
+				if self.field[i * n + j] != 0 and self.field[i * n + j] % n == j + 1:
+					for l in range(i, n):
+						if self.field[l * n + j] != 0 and self.field[l * n + j] % n == j + 1:
+							if self.field[i * n + j] > self.field[l * n + j]:
+								ret += 2
+				if self.field[i * n + j] != 0 and (self.field[i * n + j] - 1) // n == i:
+					for k in range(j, n):
+						if self.field[i * n + k] != 0 and (self.field[i * n + k] - 1) // n == i:
+							if self.field[i * n + j] > self.field[i * n + k]:
+								ret += 2
 		return ret
 
 	def	getOutOf(self):
@@ -208,6 +212,8 @@ for el in initialState.field:
 	to_c += "," + str(el)
 to_c = to_c[1:]
 print(to_c)
+# print('L = ', initialState.getLinearConflict())
+# exit()
 visitedStates = [initialState]
 best_solution = None
 newLimit = 1000000

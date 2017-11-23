@@ -10,7 +10,7 @@ from subprocess import call
 n = 0
 field_size = 0
 field = []
-file = "4-easy.txt"
+file = "npuzzle-3-5.txt"
 
 with open("data/" + file) as f:
 	i = 0
@@ -38,7 +38,6 @@ top_range = [i for i in range(n)]
 bottom_range = [i for i in range(field_size - n, field_size)]
 
 # DEFINE STATE CLASS
-
 class State(object):
 	# SRAV NA NORMI
 	def __init__(self, field):

@@ -30,6 +30,8 @@ int		abs(int x);
 int		getH(int *field);
 int		getManhattan(int *field);
 int		getLinearConflict(int *field);
+int		getPatternDatabaseMine(int *field);
+int		getPatternDatabase(int *field);
 int		compare_array(int *field1, int *field2);
 int		ansver(int *field);
 void	print_way(t_state *node);

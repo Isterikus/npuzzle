@@ -10,7 +10,7 @@ from subprocess import call
 n = 0
 field_size = 0
 field = []
-file = "npuzzle-4-3.txt"
+file = "npuzzle-3-1.txt"
 
 with open("data/" + file) as f:
 	i = 0
@@ -37,6 +37,11 @@ right_range = [i * n - 1 for i in range(1, n + 1)]
 top_range = [i for i in range(n)]
 bottom_range = [i for i in range(field_size - n, field_size)]
 
+real_top_range = [i + 1 for i in top_range]
+real_left_range = [i + 1 for i in left_range]
+
+database = [1,1,1,]
+
 # DEFINE STATE CLASS
 class State(object):
 	# SRAV NA NORMI
@@ -58,10 +63,8 @@ class State(object):
 		return self.g + self.h
 
 	def setH(self):
-		# if not self.checkPattern():
-			# self.h = self.getPatternDatabase()
-		# else:
-		self.h = self.getManhattan() + self.getLinearConflict()# + self.getOutOf()
+		self.h = self.getPatternDatabase() + self.getLinearConflictMine()
+		# self.h = self.getManhattan() + self.getLinearConflicxtMine()# + self.getOutOf()
 
 	def setG(self, g):
 		self.g = g
@@ -72,41 +75,27 @@ class State(object):
 	def setParent(self, parent):
 		self.parent = parent
 
-	def checkPattern(self):
-		for i in range(n):
-			if self.field[i] != i + 1:
-				return False
-			if self.field[i * n] != i * n + 1:
-				return False
-		return True
-
 	def getPatternDatabase(self):
-		ret = 0
+		ret1 = 0
+		ret2 = 0
 		for i in range(n):
 			for j in range(n):
-				if (self.field[i * n + j] in [i+1 for i in top_range]) or (self.field[i * n + j] in [i+1 for i in left_range]):
-					pl_i = (self.field[i * n + j]) // n
-					pl_j = (self.field[i * n + j]) % n - 1
-					if pl_i == 1 and (self.field[i * n + j]) % n == 0:
-						pl_i = 0
-					if pl_j == -1:
-						pl_j = n-1
-					# print('---------------------------------- ', self.field[i * n + j])
-					# print('i = ', i, ' j = ', j)
-					# print('plI = ', pl_i, ' plJ = ', pl_j)
-					# print('pl = ', abs(i - pl_i) + abs(j - pl_j))
-					ret += abs(i - pl_i) + abs(j - pl_j)
-		# for i in range(n):
-		# 	for j in range(i, n):
-		# 			pass
-		# 		if self.field[i] > self.field[j]:
-		# 			ret += 2
-		# 		if self.field[i * n] > self.field[j * n]:
-		# 			ret += 2
-		# print(self.field)
-		# print(ret)
-		# exit()
-		return ret
+				pos = i * n + j
+				if (self.field[pos] == 0):
+					continue
+					pl_i = n - 1
+					pl_j = n - 1
+				elif self.field[pos] % n == 0:
+					pl_i = self.field[pos] // n - 1
+					pl_j = n - 1
+				else:
+					pl_i = self.field[pos] // n
+					pl_j = self.field[pos] % n - 1
+				if (self.field[pos] in real_top_range) or (self.field[pos] in real_left_range):
+					ret1 += abs(i - pl_i) + abs(j - pl_j)
+				else:
+					ret2 += abs(i - pl_i) + abs(j - pl_j)
+		return max(ret1, ret2)
 
 	def getManhattan(self):
 		ret = 0
@@ -140,16 +129,34 @@ class State(object):
 		ret = 0
 		for i in range(n):
 			for j in range(n):
-				if self.field[i * n + j] != 0 and self.field[i * n + j] % n == j + 1:
+				pos = i * n + j
+				if self.field[pos] != 0 and self.field[pos] % n == j + 1:
 					for l in range(i, n):
-						if self.field[l * n + j] != 0 and self.field[l * n + j] % n == j + 1:
-							if self.field[i * n + j] > self.field[l * n + j]:
+						l_pos = l * n + j
+						if self.field[l_pos] != 0 and self.field[l_pos] % n == j + 1:
+							if self.field[pos] > self.field[l_pos]:
 								ret += 2
-				if self.field[i * n + j] != 0 and (self.field[i * n + j] - 1) // n == i:
+				if self.field[pos] != 0 and (self.field[pos] - 1) // n == i:
 					for k in range(j, n):
-						if self.field[i * n + k] != 0 and (self.field[i * n + k] - 1) // n == i:
-							if self.field[i * n + j] > self.field[i * n + k]:
+						k_pos = i * n + k
+						if self.field[k_pos] != 0 and (self.field[k_pos] - 1) // n == i:
+							if self.field[pos] > self.field[k_pos]:
 								ret += 2
+		return ret
+
+	def getLinearConflictMine(self):
+		ret = 0
+		for i in range(n):
+			for j in range(n):
+				pos = i * n + j
+				for l in range(i, n):
+					l_pos = l * n + j
+					if self.field[pos] > self.field[l_pos]:
+						ret += 2
+				for k in range(j, n):
+					k_pos = i * n + k
+					if self.field[pos] > self.field[k_pos]:
+						ret += 2
 		return ret
 
 	def	getOutOf(self):
@@ -281,6 +288,11 @@ def print_way(node):
 		node = node.getParent()
 		count += 1
 	print(count - 1)
+
+def count_way(node):
+	count = 0
+	while node != None:
+		pr
 
 def search(node, g, bound):
 	f = g + node.getH()

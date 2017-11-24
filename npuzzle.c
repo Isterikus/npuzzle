@@ -4,6 +4,7 @@ int		*left_range;
 int		*right_range;
 int		*top_range;
 int		*bottom_range;
+int		*database;
 int		n;
 int		size;
 
